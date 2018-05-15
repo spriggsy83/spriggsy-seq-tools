@@ -1,0 +1,15 @@
+excludeEveryXSeq
+excludeSeqsBySAM
+extractEveryXSeq
+filterSeqSize
+getSeqCGstats
+getSeqCountTable
+getSeqQCStats
+getSeqSizeChart
+getSeqSizeList
+getSeqSizeStats
+reverseComplement
+splitSeqsIntoXFiles
+tallyGeneCoverageSamGZ
+tallySNPs2
+
