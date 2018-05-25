@@ -51,7 +51,7 @@ void SNPTallyer::prepareSNPTallyer(const vector<string>& aLabelsList, const vect
 		return;
 	}
 	
-	outtabfile << "RefID\tSNPCoord\tRefBase\tSNPBase";
+	outtabfile << "RefID\tSNPCoord\tRowAllele";
 	for(int sNum=0; sNum < numSamples; sNum++){
 		outtabfile << "\t" << labels[sNum];
 	}
