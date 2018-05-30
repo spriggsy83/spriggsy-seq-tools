@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include "SeqReader.h"
@@ -124,6 +125,11 @@ bool SeqReader::nextSeqFasta(){
 					if(lineTmp[0] == '>' && lineTmp.length() > 1){
 						currID = lineTmp.substr(1);
 						firstLine = false;
+							// If a space or tab, remove to keep basic ID
+						std::size_t spacePos = currID.find_first_of(" \t");
+						if(spacePos != std::string::npos){
+							currID.replace(spacePos, string::npos, "");
+						}
 					}else{
 						cerr << "File " << filename << " not in valid fasta format!\n";
 						return false;
@@ -132,6 +138,11 @@ bool SeqReader::nextSeqFasta(){
 					if(lineTmp[0] == '>'){
 						nextID = lineTmp.substr(1);
 						reachedNext = true;
+							// If a space or tab, remove to keep basic ID
+						std::size_t spacePos = nextID.find_first_of(" \t");
+						if(spacePos != std::string::npos){
+							nextID.replace(spacePos, string::npos, "");
+						}
 					}else{
 						currSeq.append(lineTmp);
 					}
@@ -288,30 +299,30 @@ string SeqReader::fileModeString() const{
 ** Returns sequence ID, sequence and quality scores (if present) in format of file.
 **/
 string SeqReader::toString() const{
-	string result;
+	stringstream result;
 	
 	switch (mode){
 		case 0:
-			result += "@" + currID + "\n";
-			result += currSeq + "\n";
-			result += "+\n" + currQual + "\n";
+			result << "@" << currID << "\n";
+			result << currSeq << "\n";
+			result << "+\n" << currQual << "\n";
 			break;
 		case 1:
 		default:
-			result += ">" + currID + "\n";
+			result << ">" << currID << "\n";
 			int printStart = 0;
 			int printEnd = 59;
 			do{
 				if(printEnd >= currLen){
-					result += currSeq.substr(printStart) + "\n";
+					result << currSeq.substr(printStart) << "\n";
 				}else{
-					result += currSeq.substr(printStart, printEnd-printStart+1) + "\n";
+					result << currSeq.substr(printStart, printEnd-printStart+1) << "\n";
 				}
 				printStart += 60;
 				printEnd += 60;
 			}while(printStart < currLen);
 	}
-	return result;
+	return result.str();
 }
 
 
@@ -320,57 +331,70 @@ string SeqReader::toString() const{
 **/
 string SeqReader::getSubseq(const int ssStart, const int ssEnd) const{
 	int start = ssStart;
-	if(start < 0){
-		start = 0;
-	}
 	int end = ssEnd;
-	if(end < 0){
-		end = currLen - 1;
-	}else if(end < start){
-		end = start;
+	if(start < 0){
+		start = abs(start);
 	}
-	return currSeq.substr(start, end-start+1);
+	if(end < 0){
+		end = abs(end);
+	}
+	if(start > end){
+		int temp = end;
+		end = start;
+		start = temp;
+	}
+	if(start > currLen || start < 1 || end < 1){
+		return "";
+	}
+	return currSeq.substr(start-1, end-start+1);
 }
 
 /*** Returns a sub-sequence from the last sequence fetched from the file, with ID, etc., in the format of file.
-** Start and End are inclusive and count from 0.
+** Start and End are inclusive and count from 1.
 **/
 string SeqReader::toStringSubseq(const int ssStart, const int ssEnd) const{
 	int start = ssStart;
-	if(start < 0){
-		start = 0;
-	}
 	int end = ssEnd;
-	if(end < 0){
-		end = currLen - 1;
-	}else if(end < start){
-		end = start - 1;
+	if(start < 0){
+		start = abs(start);
 	}
-	string newSeq = currSeq.substr(start, end-start+1);
-	string result;
+	if(end < 0){
+		end = abs(end);
+	}
+	if(start > end){
+		int temp = end;
+		end = start;
+		start = temp;
+	}
+	if(start > currLen || start < 1 || end < 1){
+		return "";
+	}
+	
+	string newSeq = currSeq.substr(start-1, end-start+1);
+	stringstream result;
 	
 	switch (mode){
 		case 0:
-			result += "@" + currID + "\n";
-			result += newSeq + "\n";
-			result += "+\n" + currQual.substr(start, end-start+1) + "\n";
+			result << "@" << currID << "\n";
+			result << newSeq << "\n";
+			result << "+\n" << currQual.substr(start-1, end-start+1) << "\n";
 			break;
 		case 1:
 		default:
-			result += ">" + currID + "\n";
+			result << ">" << currID << ":" << start << "-" << end << "\n";
 			int printStart = 0;
 			int printEnd = 59;
 			do{
 				if(printEnd >= newSeq.length()){
-					result += newSeq.substr(printStart) + "\n";
+					result << newSeq.substr(printStart) << "\n";
 				}else{
-					result += newSeq.substr(printStart, printEnd-printStart+1) + "\n";
+					result << newSeq.substr(printStart, printEnd-printStart+1) << "\n";
 				}
 				printStart += 60;
 				printEnd += 60;
 			}while(printStart < newSeq.length());
 	}
-	return result;
+	return result.str();
 }
 
 /*** Returns the reverse complement of the last sequence string fetched from the file.

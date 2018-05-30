@@ -8,6 +8,7 @@ Compile C++ programs on Unix systems with:
 
 |Program|Use|
 |--|--|
+|getSubSeqs|Extract sub-sequences, given a list of coordinate ranges|
 |excludeEveryXSeq|Extract a subset of sequences, excluding every Xth|
 |excludeSeqsBySAM|Extract a subset of sequences, excluding those with no alignment in a SAM file|
 |extractEveryXSeq|Extract a subset of sequences, retaining every Xth|
@@ -25,7 +26,7 @@ Compile C++ programs on Unix systems with:
 |tallyGeneCoverageSamGZ|Produces a count of aligned reads per gene per sample|
 |tallySNPs2|Counts aligned reads from different alleles at SNP positions, see README-tallySNPs.md|
 
-SeqReader.cpp/.h is a useful library for building upon.  It handles reading of fasta or fastq formatted sequence files and can handle .gz compressed inputs.  Allows for easy parsing with nextSeq() function and has various sequence manipulations built in. 
+SeqReader.cpp/.h is a useful library for building upon.  It handles reading of fasta or fastq formatted sequence files and can handle .gz compressed inputs.  Allows for easy parsing with nextSeq() function and has various sequence manipulatins built in. 
 
 Code by Andrew Spriggs, CSIRO Ag&Food (www.csiro.au)
 andrew.spriggs@csiro.au

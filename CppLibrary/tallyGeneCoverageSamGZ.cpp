@@ -135,8 +135,8 @@ void printHelp(){
 	cerr << "\n\n";
 	cerr << "samplesFile should be a tab-separated file with each line representing a sample in the form:\n\n";
 	cerr << "sample-name\tsam.gz-file\n\n";
-	cerr << "...where sam.gz-file is the filename for a GZipped SAM-formatted result of an alignment between the sample and the reference sequence";
-	cerr << "and sample-name is a short label to give the sample in outputs.\n";
+	cerr << "...where sam.gz-file is the filename for a GZipped SAM-formatted result of an alignment between the sample ";
+	cerr << "and the reference sequence, and sample-name is a short label to give the sample in outputs.\n";
 	cerr << "...and coordsFile is the filename of a tab-separated file containing coords to test coverage over, in form-\n";
 	cerr << "refID\tstart-coord\tend-coord\tgene-name\t[additional columns]\n\n";
 }

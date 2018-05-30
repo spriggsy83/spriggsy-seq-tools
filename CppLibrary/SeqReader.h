@@ -52,10 +52,10 @@ class SeqReader {
 		** Returns sequence ID, sequence and quality scores (if present) in format of file. **/
 	string toString() const;
 		/*** Returns a sub-sequence from the last sequence fetched from the file.
-		** Start and End are inclusive and count from 0. **/
+		** Start and End are inclusive and count from 1. **/
 	string getSubseq(const int start, const int end) const;
 		/*** Returns a sub-sequence from the last sequence fetched from the file, with ID, etc., in the format of file.
-		** Start and End are inclusive and count from 0. **/
+		** Start and End are inclusive and count from 1. **/
 	string toStringSubseq(const int start, const int end) const;
 		/*** Returns the reverse complement of the last sequence string fetched from the file.
 		**/
