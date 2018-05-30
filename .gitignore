@@ -1,6 +1,7 @@
 excludeEveryXSeq
 excludeSeqsBySAM
 extractEveryXSeq
+getSubSeqs
 filterSeqSize
 getSeqCGstats
 getSeqCountTable
