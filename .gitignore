@@ -13,4 +13,4 @@ reverseComplement
 splitSeqsIntoXFiles
 tallyGeneCoverageSamGZ
 tallySNPs2
-
+mergeKmerCounts

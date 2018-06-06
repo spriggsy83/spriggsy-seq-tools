@@ -14,6 +14,7 @@
 # reverseComplement
 # splitSeqsIntoXFiles
 # tallyGeneCoverageSamGZ
+# mergeKmerCounts
 
 #Requires Boost C++ Libraries and OpenMPI
 #module load boost
@@ -35,3 +36,4 @@ g++ -fopenmp -lboost_iostreams -o ../tallySNPs2 tallySNPs2.cpp SNPTallyer2.cpp S
 g++ -lboost_iostreams -o ../reverseComplement reverseComplement.cpp SeqReader.cpp
 g++ -lboost_iostreams -o ../splitSeqsIntoXFiles splitSeqsIntoXFiles.cpp SeqReader.cpp
 g++ -fopenmp -lboost_iostreams -o ../tallyGeneCoverageSamGZ tallyGeneCoverageSamGZ.cpp GeneCoverageTallyerSamGZ.cpp
+g++ -lboost_iostreams -o ../mergeKmerCounts mergeKmerCounts.cpp KmerCountMerger.cpp

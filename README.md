@@ -25,6 +25,7 @@ Compile C++ programs on Unix systems with:
 |splitSeqsIntoXFiles|Will divide a sequence file up into multiple smaller sequence files|
 |tallyGeneCoverageSamGZ|Produces a count of aligned reads per gene per sample|
 |tallySNPs2|Counts aligned reads from different alleles at SNP positions, see README-tallySNPs.md|
+|mergeKmerCounts|Merge Kmer count results from multiple samples into a multi-column table|
 
 SeqReader.cpp/.h is a useful library for building upon.  It handles reading of fasta or fastq formatted sequence files and can handle .gz compressed inputs.  Allows for easy parsing with nextSeq() function and has various sequence manipulations built in. 
 
