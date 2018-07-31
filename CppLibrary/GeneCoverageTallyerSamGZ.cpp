@@ -127,6 +127,12 @@ bool GeneCoverageTallyer::loadCoordsList(){
 			stringstream endSS(lineParts[2]);
 			unsigned int end;
 			endSS >> end;
+			if(end < start){
+				unsigned int temp = start;
+				start = end;
+				end = temp;
+			}
+
 			if(geneCoords.count(refID) == 0){
 				geneCoords[refID] = vector< GeneCoord >();
 				readCounts[refID] = vector< vector< unsigned int > >();
