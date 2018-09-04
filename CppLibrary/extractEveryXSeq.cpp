@@ -58,7 +58,7 @@ bool getInputs(int argc, char* argv[], string& inFileName, string& outFileName, 
 		cerr << "\t***** " << progName << " *****\n\t- Andrew Spriggs, CSIRO Ag&Food, 2018 -\n";
 		cerr << "Will output a subset of a sequence file, retaining every Xth sequence.\n";
 		cerr << "Input files may be fasta or fastq and may be .gz compressed.\n";
-		cerr << "Command line usage:\n" << argv[0] << " <in seq file <outfile> <X>\n";
+		cerr << "Command line usage:\n" << argv[0] << " <in seq file> <outfile> <X>\n";
 		return false;
 	}
 	

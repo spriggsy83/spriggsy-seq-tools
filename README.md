@@ -1,5 +1,7 @@
 ## README
-This is a collection of small C++ programs and Perl scripts that have been handy in bioinformatic sequence analysis.  Most parse/manipulate fasta/fastq formatted DNA/RNA sequence files.  Some read SAM format sequence alignment results.  A couple deal specifically with results from the program 'biokanga align' (https://github.com/csiro-crop-informatics/biokanga).
+This is a collection of small C++ programs and Perl scripts that have been handy in bioinformatic sequence analysis.
+Most parse/manipulate fasta/fastq formatted DNA/RNA sequence files.  Some read SAM format sequence alignment results.
+A couple deal specifically with results from the program 'biokanga align' (https://github.com/csiro-crop-informatics/biokanga).
 
 C++ program prerequisites: Boost C++ Libraries (www.boost.org) and OpenMPI (www.open-mpi.org/)
 
@@ -9,6 +11,7 @@ Compile C++ programs on Unix systems with:
 |Program|Use|
 |--|--|
 |getSubSeqs|Extract sub-sequences, given a list of coordinate ranges|
+|extractSeqSubsets|Extract a subset of sequences, given rules (skip X, print every X, max X, etc.)|
 |excludeEveryXSeq|Extract a subset of sequences, excluding every Xth|
 |excludeSeqsBySAM|Extract a subset of sequences, excluding those with no alignment in a SAM file|
 |extractEveryXSeq|Extract a subset of sequences, retaining every Xth|
@@ -27,7 +30,9 @@ Compile C++ programs on Unix systems with:
 |tallySNPs2|Counts aligned reads from different alleles at SNP positions, see README-tallySNPs.md|
 |mergeKmerCounts|Merge Kmer count results from multiple samples into a multi-column table|
 
-SeqReader.cpp/.h is a useful library for building upon.  It handles reading of fasta or fastq formatted sequence files and can handle .gz compressed inputs.  Allows for easy parsing with nextSeq() function and has various sequence manipulations built in. 
+SeqReader.cpp/.h is a useful library for building upon.
+It handles reading of fasta or fastq formatted sequence files and can handle .gz compressed inputs.
+Allows for easy parsing with nextSeq() function and has various sequence manipulations built in. 
 
 Code by Andrew Spriggs, CSIRO Ag&Food (www.csiro.au)
 andrew.spriggs@csiro.au
