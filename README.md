@@ -12,9 +12,7 @@ Compile C++ programs on Unix systems with:
 |--|--|
 |getSubSeqs|Extract sub-sequences, given a list of coordinate ranges|
 |extractSeqSubsets|Extract a subset of sequences, given rules (skip X, print every X, max X, etc.)|
-|excludeEveryXSeq|Extract a subset of sequences, excluding every Xth|
 |excludeSeqsBySAM|Extract a subset of sequences, excluding those with no alignment in a SAM file|
-|extractEveryXSeq|Extract a subset of sequences, retaining every Xth|
 |filterSeqSize|Extract a subset of sequences, retaining those within a range of lengths|
 |getBiokangaAlignStats .pl|Produces alignment statistics from log-file output of 'biokanga align'|
 |getSeqCGstats|Profiles sequences for GC% and base counts|

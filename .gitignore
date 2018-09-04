@@ -1,7 +1,5 @@
 extractSeqSubsets
-excludeEveryXSeq
 excludeSeqsBySAM
-extractEveryXSeq
 getSubSeqs
 filterSeqSize
 getSeqCGstats

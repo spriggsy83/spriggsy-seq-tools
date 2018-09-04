@@ -8,8 +8,6 @@
 # filterSeqSize
 # getSubSeqs
 # extractSeqSubsets
-# excludeEveryXSeq
-# extractEveryXSeq
 # excludeSeqsBySAM
 # tallySNPs2
 # reverseComplement
@@ -31,8 +29,6 @@ g++ -lboost_iostreams -o ../filterSeqSize filterSeqSize.cpp SeqReader.cpp
 g++ -lboost_iostreams -lboost_regex -o ../getSubSeqs getSubSeqs.cpp SeqReader.cpp
 g++ -lboost_iostreams -o ../getSeqCountTable getSeqCountTable.cpp SeqReader.cpp
 g++ -lboost_iostreams -o ../extractSeqSubsets extractSeqSubsets.cpp SeqReader.cpp
-g++ -lboost_iostreams -o ../excludeEveryXSeq excludeEveryXSeq.cpp SeqReader.cpp
-g++ -lboost_iostreams -o ../extractEveryXSeq extractEveryXSeq.cpp SeqReader.cpp
 g++ -lboost_iostreams -o ../excludeSeqsBySAM excludeSeqsBySAM.cpp SeqReader.cpp
 g++ -fopenmp -lboost_iostreams -o ../tallySNPs2 tallySNPs2.cpp SNPTallyer2.cpp SeqReader.cpp AlignedRead.cpp
 g++ -lboost_iostreams -o ../reverseComplement reverseComplement.cpp SeqReader.cpp
