@@ -30,7 +30,7 @@ int main(int argc,char *argv[]){
 		cerr << "Process aborted.\n";
 		return 0;
 	}
-	maxbp = maxGbp * 1000000000;
+	maxbp = (unsigned long)maxGbp * 1000000000;
 	
 	ofstream outfile(outFileName.c_str());
 	if(!outfile.is_open()){
@@ -44,49 +44,39 @@ int main(int argc,char *argv[]){
 	int skipCount = 0;
 	unsigned long printbp = 0;
 	unsigned long numPrinted = 0;
-	unsigned long numRejected = 0;
 
-	while( inFile.nextSeq() ){
+	while( inFile.nextSeq() && (numPrinted < maxNum || maxNum == 0) && (printbp < maxbp || maxbp == 0) ){
+
 		if(skipNum > 0 && skipCount < skipNum){
 			skipCount++;
-			numRejected++;
 
-		}else if( (numPrinted < maxNum || maxNum == 0) && (printbp < maxbp || maxbp == 0) ){
-			
-			if(mode == 0){  // Print all
+		}else if(mode == 0){  // Print all
 				outfile << inFile.toString();
 				printbp += inFile.getSeqLen();
 				numPrinted++;
 
-			}else if(mode == 1){  // extract-every-X mode
-				counter++;
-				if(counter == X){
-					counter = 0;
-					outfile << inFile.toString();
-					printbp += inFile.getSeqLen();
-					numPrinted++;
-				}else{
-					numRejected++;
-				}
-			}else if(mode == 2){  // exclude-every-X mode
-				counter++;
-				if(counter == X){
-					counter = 0;
-					numRejected++;
-				}else{
-					outfile << inFile.toString();
-					printbp += inFile.getSeqLen();
-					numPrinted++;
-				}
+		}else if(mode == 1){  // extract-every-X mode
+			counter++;
+			if(counter == X){
+				counter = 0;
+				outfile << inFile.toString();
+				printbp += inFile.getSeqLen();
+				numPrinted++;
 			}
-				
-		}else{
-			numRejected++;
+			
+		}else if(mode == 2){  // exclude-every-X mode
+			counter++;
+			if(counter == X){
+				counter = 0;
+			}else{
+				outfile << inFile.toString();
+				printbp += inFile.getSeqLen();
+				numPrinted++;
+			}
 		}
 	}
 	
-	cout << "Num printed\t" << numPrinted << "\t(" << printbp << " bp)\n";
-	cout << "Num rejected\t" << numRejected << "\n";
+	cout << "Output " << numPrinted << "sequences (" << printbp << " bp).\n";
 	return 0;
 }
 
