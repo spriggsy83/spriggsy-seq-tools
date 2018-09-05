@@ -76,7 +76,7 @@ int main(int argc,char *argv[]){
 		}
 	}
 	
-	cout << "Output " << numPrinted << "sequences (" << printbp << " bp).\n";
+	cout << "Output " << numPrinted << " sequences (" << printbp << " bp).\n";
 	return 0;
 }
 
