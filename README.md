@@ -3,7 +3,13 @@ This is a collection of small C++ programs and Perl scripts that have been handy
 Most parse/manipulate fasta/fastq formatted DNA/RNA sequence files.  Some read SAM format sequence alignment results.
 A couple deal specifically with results from the program 'biokanga align' (https://github.com/csiro-crop-informatics/biokanga).
 
-C++ program prerequisites: Boost C++ Libraries (www.boost.org) and OpenMPI (www.open-mpi.org/)
+C++ program prerequisites: Boost C++ Libraries (www.boost.org) and OpenMPI (www.open-mpi.org/)  
+Ubuntu preparation:
+```
+sudo apt-get install openmpi-bin openmpi-doc libopenmpi-dev
+sudo apt-get install libboost-all-dev libboost-dev libboost-doc libboost-container-dev
+sudo apt-get install zlib1g-dev zlib1g
+```
 
 Compile C++ programs on Unix systems with:
 `bash buildAllC.sh`
