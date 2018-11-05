@@ -37,7 +37,8 @@ class SNPTallyer {
 	string inRefSeqFileName;  //!< Fasta reference sequence file name for input
 	int numSamples; //!< Number of input samples == number of SAM file inputs
 	vector<omp_lock_t> ompWriteLocks; //!< Write-locks for parellelisation. Multi for loops-within-loops
-	ofstream outtabfile; //!< Tabular output file name
+	ofstream outtabfile;  //!< Tabular output file name
+	int outFormat;  //!< Output format, 1 = row per SNP, 2 = row per allele, 3 = row per pos
 	bool filesReady;  //!< Indicates that class has been initialised, output files have been opened and SNPTallyer is ready to run
 	bool snpsPreLoaded;  //!< Indicates that biokanga-align SNP files have been parsed and snpPreList prepared
 	string readsLoadedFor;	//!< Stores reference sequence ID of currently loaded read alignments
@@ -47,21 +48,46 @@ class SNPTallyer {
 	vector<vector<AlignedRead> > reads; //!< Stores details of aligned reads for a reference sequence
 	
 		/*** Actual constructor code, called by constructor forms **/
-	void prepareSNPTallyer(const vector<string>& aLabelsList, const vector<string>& aSAMFileNamesList, const vector<string>& aSNPFileNamesList, const string& aRefSeqFileName, const string& aOutTabFileName, const int aReadDepthMin, const int aEdgeBuffer);
+	void prepareSNPTallyer(const vector<string>& aLabelsList, 
+						const vector<string>& aSAMFileNamesList, 
+						const vector<string>& aSNPFileNamesList, 
+						const string& aRefSeqFileName, 
+						const string& aOutTabFileName, 
+						const int aOutFormat, 
+						const int aReadDepthMin, 
+						const int aEdgeBuffer);
+
 		/*** Read Biokanga-Align SNP lists to form starting list of SNP locations **/
 	bool loadSNPLists();
+
 		/*** Load read alignments against a reference seq, from SAM files, for all samples **/
 	void readReadsAll(const string& refID, int refSeqLen);
+
 		/*** Load read alignments against a reference seq, from SAM files, for a single sample, adding to vector of aligned reads **/
-	int readReadsSample(const string& inSamFileName, string refID, vector<AlignedRead>& reads);
+	int readReadsSample(const string& inSamFileName, 
+						string refID, 
+						vector<AlignedRead>& reads);
+
 		/*** Test reads from all samples over a SNP coord and print results if suitable **/
-	bool testSNP(const unsigned int snpCoord, const char refBase, const string& refID);
+	bool testSNP(const unsigned int snpCoord, 
+				const char refBase, 
+				const string& refID);
+
 		/*** Tally bases from reads seen over a SNP coord for a sample **/
-	unsigned int tallyBases(const unsigned int snpCoord, const vector<AlignedRead>& sampReads, vector<unsigned int>& baseTally);
+	unsigned int tallyBases(const unsigned int snpCoord, 
+							const vector<AlignedRead>& sampReads, 
+							vector<unsigned int>& baseTally);
 		
   public:
 		/** Initialise with no defaults **/
-	SNPTallyer(const vector<string>& aLabelsList, const vector<string>& aSAMFileNamesList, const vector<string>& aSNPFileNamesList, const string& aRefSeqFileName, const string& aOutTabFileName, const int aReadDepthMin, const int aEdgeBuffer);
+	SNPTallyer(const vector<string>& aLabelsList, 
+				const vector<string>& aSAMFileNamesList, 
+				const vector<string>& aSNPFileNamesList, 
+				const string& aRefSeqFileName, 
+				const string& aOutTabFileName, 
+				const int aOutFormat, 
+				const int aReadDepthMin, 
+				const int aEdgeBuffer);
 	~SNPTallyer();
 	
 		/** Launch SNP tally across all reference sequences **/

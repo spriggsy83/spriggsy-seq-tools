@@ -19,14 +19,35 @@
 
 /*** Initialise with no defaults 
 **/
-SNPTallyer::SNPTallyer(const vector<string>& aLabelsList, const vector<string>& aSAMFileNamesList, const vector<string>& aSNPFileNamesList, const string& aRefSeqFileName, const string& aOutTabFileName, const int aReadDepthMin, const int aEdgeBuffer){
-	prepareSNPTallyer(aLabelsList, aSAMFileNamesList, aSNPFileNamesList, aRefSeqFileName, aOutTabFileName, aReadDepthMin, aEdgeBuffer);
+SNPTallyer::SNPTallyer(const vector<string>& aLabelsList, 
+						const vector<string>& aSAMFileNamesList, 
+						const vector<string>& aSNPFileNamesList, 
+						const string& aRefSeqFileName, 
+						const string& aOutTabFileName, 
+						const int aOutFormat, 
+						const int aReadDepthMin, 
+						const int aEdgeBuffer){
+	prepareSNPTallyer(aLabelsList, 
+					aSAMFileNamesList, 
+					aSNPFileNamesList, 
+					aRefSeqFileName, 
+					aOutTabFileName, 
+					aOutFormat, 
+					aReadDepthMin, 
+					aEdgeBuffer);
 	return;
 }
 
 /*** Actual constructor 
 **/
-void SNPTallyer::prepareSNPTallyer(const vector<string>& aLabelsList, const vector<string>& aSAMFileNamesList, const vector<string>& aSNPFileNamesList, const string& aRefSeqFileName, const string& aOutTabFileName, const int aReadDepthMin, const int aEdgeBuffer){
+void SNPTallyer::prepareSNPTallyer(const vector<string>& aLabelsList, 
+								const vector<string>& aSAMFileNamesList, 
+								const vector<string>& aSNPFileNamesList, 
+								const string& aRefSeqFileName, 
+								const string& aOutTabFileName, 
+								const int aOutFormat, 
+								const int aReadDepthMin, 
+								const int aEdgeBuffer){
 
 	filesReady = false;
 	snpsPreLoaded = false;
@@ -38,6 +59,11 @@ void SNPTallyer::prepareSNPTallyer(const vector<string>& aLabelsList, const vect
 	readsLoadedFor = "noneyet";
 	readDepthMin = aReadDepthMin;
 	edgeBuffer = aEdgeBuffer;
+	outFormat = aOutFormat;
+	if(outFormat < 1 || outFormat > 3){
+		cerr << "Invalid output format option!\nNo SNP detection will follow.\n";
+		return;
+	}
 	
 	for(int sNum=0; sNum < numSamples; sNum++){
 		omp_lock_t writelock;
@@ -51,9 +77,28 @@ void SNPTallyer::prepareSNPTallyer(const vector<string>& aLabelsList, const vect
 		return;
 	}
 	
-	outtabfile << "RefID\tSNPCoord\tRowAllele";
-	for(int sNum=0; sNum < numSamples; sNum++){
-		outtabfile << "\t" << labels[sNum];
+	switch(outFormat){
+		case 1:
+			outtabfile << "RefID\tSNPCoord\tRefBase\tSNPBase";
+			for(int sNum=0; sNum < numSamples; sNum++){
+				outtabfile << "\t" << labels[sNum] << ".snpRds\t" << labels[sNum] << ".otherRds";
+			}
+			break;
+		case 2:
+			outtabfile << "RefID\tSNPCoord\tRowAllele";
+			for(int sNum=0; sNum < numSamples; sNum++){
+				outtabfile << "\t" << labels[sNum];
+			}
+			break;
+		case 3:
+			outtabfile << "RefID\tSNPCoord\tRefBase";
+			for(int sNum=0; sNum < numSamples; sNum++){
+				outtabfile << "\t" << labels[sNum] << ".A";
+				outtabfile << "\t" << labels[sNum] << ".T";
+				outtabfile << "\t" << labels[sNum] << ".C";
+				outtabfile << "\t" << labels[sNum] << ".G";
+			}
+			break;
 	}
 	outtabfile << "\n";
 	
@@ -410,32 +455,71 @@ bool SNPTallyer::testSNP(const unsigned int snpCoord, const char refBase, const 
 		}
 	}
 	if(printed){
-		for(int baseI=0; baseI < 4; baseI++){
-			if(basesToPrint[baseI] || baseI == refBaseI){
-				
-				outtabfile << refID << "\t" << snpCoord << "\t";
-				switch(baseI){
-					case 0:
-						outtabfile << 'A';
-						break;
-					case 1:
-						outtabfile << 'T';
-						break;
-					case 2:
-						outtabfile << 'C';
-						break;
-					case 3:
-						outtabfile << 'G';
+		switch(outFormat){
+			case 1:
+				for(int baseI=0; baseI < 4; baseI++){
+					if(basesToPrint[baseI]){	
+						outtabfile << refID << "\t" << snpCoord << "\t" << refBase << "\t";
+						switch(baseI){
+							case 0:
+								outtabfile << 'A';
+								break;
+							case 1:
+								outtabfile << 'T';
+								break;
+							case 2:
+								outtabfile << 'C';
+								break;
+							case 3:
+								outtabfile << 'G';
+						}
+						for(int sNum=0; sNum < numSamples; sNum++){
+							unsigned int numOther = totalReads[sNum] - baseTally[sNum][baseI];
+							outtabfile << "\t" << baseTally[sNum][baseI] << "\t" << numOther;
+						}
+						outtabfile << "\n";
+					}
 				}
-				if(baseI == refBaseI){
-					outtabfile << '*';
+				break;
+			case 2:
+				for(int baseI=0; baseI < 4; baseI++){
+					if(basesToPrint[baseI] || baseI == refBaseI){
+						outtabfile << refID << "\t" << snpCoord << "\t";
+						switch(baseI){
+							case 0:
+								outtabfile << 'A';
+								break;
+							case 1:
+								outtabfile << 'T';
+								break;
+							case 2:
+								outtabfile << 'C';
+								break;
+							case 3:
+								outtabfile << 'G';
+						}
+						if(baseI == refBaseI){
+							outtabfile << '*';
+						}
+						for(int sNum=0; sNum < numSamples; sNum++){
+							outtabfile << "\t" << baseTally[sNum][baseI];
+						}
+						outtabfile << "\n";
+					}
 				}
+				break;
+			case 3:
+				outtabfile << refID << "\t" << snpCoord << "\t" << refBase;
 				for(int sNum=0; sNum < numSamples; sNum++){
-					outtabfile << "\t" << baseTally[sNum][baseI];
+					outtabfile << "\t" << baseTally[sNum][0];
+					outtabfile << "\t" << baseTally[sNum][1];
+					outtabfile << "\t" << baseTally[sNum][2];
+					outtabfile << "\t" << baseTally[sNum][3];
 				}
 				outtabfile << "\n";
-			}
+				break;
 		}
+		
 	}
 	return printed;
 }

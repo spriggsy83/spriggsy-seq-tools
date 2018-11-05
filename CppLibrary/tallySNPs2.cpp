@@ -19,8 +19,19 @@ using namespace std;
 
 const char progName[] = "tallySNPs2";
 
-bool getInputs(int argc, char* argv[], string& inRefSeqFileName, string& inSamplesFileName, string& outTabFilename, int& readDensityMin, int& edgeBuffer);
-bool getSamples(const string& inSamplesFileName, vector<string>& labels, vector<string>& inSAMFileNames, vector<string>& inSNPFileNames);
+bool getInputs(int argc, char* argv[], 
+				string& inRefSeqFileName, 
+				string& inSamplesFileName, 
+				string& outTabFilename, 
+				int& outFormat, 
+				int& readDensityMin, 
+				int& edgeBuffer);
+
+bool getSamples(const string& inSamplesFileName, 
+				vector<string>& labels, 
+				vector<string>& inSAMFileNames, 
+				vector<string>& inSNPFileNames);
+
 void printHelp();
 
 int main(int argc,char *argv[]){
@@ -31,10 +42,11 @@ int main(int argc,char *argv[]){
 	string inRefSeqFileName = "";
 	string inSamplesFileName = "";
 	string outTabFilename = "snpsOut.txt";
+	int outFormat = 2;
 	int readDensityMin = 5;
 	int edgeBuffer = 5;
 	
-	if(!getInputs(argc, argv, inRefSeqFileName, inSamplesFileName, outTabFilename, readDensityMin, edgeBuffer)){
+	if(!getInputs(argc, argv, inRefSeqFileName, inSamplesFileName, outTabFilename, outFormat, readDensityMin, edgeBuffer)){
 		//cerr << "Process aborted.\n";
 		return 1;
 	}
@@ -44,7 +56,8 @@ int main(int argc,char *argv[]){
 		return 1;
 	}
 	
-	SNPTallyer theSNPTallyer(labels, inSAMFileNames, inSNPFileNames, inRefSeqFileName, outTabFilename, readDensityMin, edgeBuffer);
+	SNPTallyer theSNPTallyer(labels, inSAMFileNames, inSNPFileNames, inRefSeqFileName, 
+							outTabFilename, outFormat, readDensityMin, edgeBuffer);
 	
 	if(theSNPTallyer.tallySNPs()){
 		return 0;
@@ -53,7 +66,10 @@ int main(int argc,char *argv[]){
 	}
 }
 
-bool getSamples(const string& inSamplesFileName, vector<string>& labels, vector<string>& inSAMFileNames, vector<string>& inSNPFileNames){
+bool getSamples(const string& inSamplesFileName, 
+				vector<string>& labels, 
+				vector<string>& inSAMFileNames, 
+				vector<string>& inSNPFileNames){
 	
 	ifstream infile;
 	string line;
@@ -93,10 +109,16 @@ bool getSamples(const string& inSamplesFileName, vector<string>& labels, vector<
 	return true;
 }
 
-bool getInputs(int argc, char* argv[], string& inRefSeqFileName, string& inSamplesFileName, string& outTabFilename, int& readDensityMin, int& edgeBuffer){
+bool getInputs(int argc, char* argv[], 
+				string& inRefSeqFileName, 
+				string& inSamplesFileName, 
+				string& outTabFilename, 
+				int& outFormat, 
+				int& readDensityMin, 
+				int& edgeBuffer){
 	extern char *optarg;
 	int opt;
-	while ((opt = getopt(argc,argv,"i:r:o:d:e:h")) != EOF){
+	while ((opt = getopt(argc,argv,"i:r:o:f:d:e:h")) != EOF){
 		switch(opt){
 			case 'i':
 				inSamplesFileName = optarg;
@@ -106,6 +128,9 @@ bool getInputs(int argc, char* argv[], string& inRefSeqFileName, string& inSampl
 				break;
 			case 'o':
 				outTabFilename = optarg;
+				break;
+			case 'f':
+				outFormat = atoi(optarg);
 				break;
 			case 'd':
 				readDensityMin = atoi(optarg);
@@ -119,6 +144,11 @@ bool getInputs(int argc, char* argv[], string& inRefSeqFileName, string& inSampl
 				printHelp();
 				return false;
 		}
+	}
+	if(outFormat < 1 || outFormat > 3){
+		printHelp();
+		cerr << "\nInvalid output format option!\n";
+		return false;
 	}
 	if(inSamplesFileName == "" || inRefSeqFileName == ""){
 		printHelp();
@@ -134,6 +164,10 @@ void printHelp(){
 	cerr << "\t-i samplesFile\t\tFilename of samples list (required) (see below)\n";
 	cerr << "\t-r refSeqFile\t\tFilename of FASTA-formatted reference sequence (required)\n";
 	cerr << "\t-o outTabFile\t\tFilename for table output (default = snpsOut.txt)\n";
+	cerr << "\t-f format\t\tOutput format (default = 2)\n";
+	cerr << "\t\t\t\t-f1 == Row per SNP, sample.snpReads sample.otherReads\n";
+	cerr << "\t\t\t\t-f2 == Row per allele, sample.alleleReads\n";
+	cerr << "\t\t\t\t-f3 == Row per pos, sample.A sample.T sample.C sample.G\n";
 	cerr << "\t-d readDepthMin\t\tMinimum read depth from a sample for a reported SNP (default = 5)\n";
 	cerr << "\t-e edgeBuffer\t\tDon't count bases within __bp of ends of reads (default = 5)\n";
 	cerr << "\n\n";
