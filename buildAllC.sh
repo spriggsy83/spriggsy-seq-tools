@@ -1,5 +1,6 @@
 # Builds programs:
 # getSeqSizeStats
+# getSeqSizeStatsT
 # getSeqQCStats
 # getSeqCGstats
 # getSeqSizeList
@@ -21,6 +22,7 @@
 
 cd CppLibrary
 g++ -o ../getSeqSizeStats getSeqSizeStats.cpp SeqReader.cpp -lboost_iostreams -lz
+g++ -o ../getSeqSizeStatsT getSeqSizeStatsT.cpp SeqReader.cpp -lboost_iostreams -lz
 g++ -o ../getSeqQCStats getSeqQCStats.cpp SeqReader.cpp -lboost_iostreams -lz
 g++ -o ../getSeqCGstats getSeqCGstats.cpp SeqReader.cpp -lboost_iostreams -lz
 g++ -o ../getSeqSizeList getSeqSizeList.cpp SeqReader.cpp -lboost_iostreams -lz

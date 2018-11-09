@@ -8,6 +8,7 @@ getSeqQCStats
 getSeqSizeChart
 getSeqSizeList
 getSeqSizeStats
+getSeqSizeStatsT
 reverseComplement
 splitSeqsIntoXFiles
 tallyGeneCoverageSamGZ
