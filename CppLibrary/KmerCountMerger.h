@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
+#include "SeqReader.h"
 using namespace std;
 
 /* By Andrew Spriggs, CSIRO Ag&Food, 2018 */
