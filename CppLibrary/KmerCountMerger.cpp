@@ -11,6 +11,7 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include "KmerCountMerger.h"
+#include "SeqReader.h"
 using namespace boost::iostreams;
 
 /* By Andrew Spriggs, CSIRO Ag&Food, 2018 */
@@ -20,23 +21,24 @@ using namespace boost::iostreams;
 /*** Initialise with defaults 
 **/
 KmerCountMerger::KmerCountMerger(const vector<string>& aLabelsList, const vector<string>& aFileNamesList, const string& aOutTabFileName){
-	prepareCoverageTallyer(aLabelsList, aFileNamesList, aOutTabFileName, 20);
+	prepareKmerCountMerger(aLabelsList, aFileNamesList, aOutTabFileName, 20, false);
 	return;
 }
 
-KmerCountMerger::KmerCountMerger(const vector<string>& aLabelsList, const vector<string>& aFileNamesList, const string& aOutTabFileName, const int& aMinCount){
-	prepareCoverageTallyer(aLabelsList, aFileNamesList, aOutTabFileName, aMinCount);
+KmerCountMerger::KmerCountMerger(const vector<string>& aLabelsList, const vector<string>& aFileNamesList, const string& aOutTabFileName, const int& aMinCount, const bool& aTwoPassSet){
+	prepareKmerCountMerger(aLabelsList, aFileNamesList, aOutTabFileName, aMinCount, aTwoPassSet);
 	return;
 }
 
 /*** Actual constructor 
 **/
-void KmerCountMerger::prepareCoverageTallyer(const vector<string>& aLabelsList, const vector<string>& aFileNamesList, const string& aOutTabFileName, const int& aMinCount){
+void KmerCountMerger::prepareKmerCountMerger(const vector<string>& aLabelsList, const vector<string>& aFileNamesList, const string& aOutTabFileName, const int& aMinCount, const bool& aTwoPassSet){
 
 	prepRan = false;
 	labels = aLabelsList;
 	inFileNames = aFileNamesList;
 	minCount = aMinCount;
+	twoPass = aTwoPassSet;
 	numSamples = labels.size();
 	
 	outtabfile.open(aOutTabFileName.c_str());
@@ -68,17 +70,36 @@ bool KmerCountMerger::MergeKmerCounts(){
 		int fileType = testKmerFileForSample(sNum);
 		switch(fileType){
 			case 1:
-				if(!readTabCountsForSample(sNum)){
+				if(!readTabCountsForSample(sNum, 1)){
 					cerr << "Failed to read kmers for " << labels[sNum] << " from tab file " << inFileNames[sNum] << endl;
 				}
 				break;
 			case 2:
-				if(!readFastaCountsForSample(sNum)){
+				if(!readFastaCountsForSample(sNum, 1)){
 					cerr << "Failed to read kmers for " << labels[sNum] << " from fasta file" << inFileNames[sNum] << endl;
 				}
 				break;
 			default:
 				cerr << "Failed to read kmers for " << labels[sNum] << " from file " << inFileNames[sNum] << endl;
+		}
+	}
+	if(twoPass){
+		for(int sNum=0; sNum < numSamples; sNum++){
+			int fileType = testKmerFileForSample(sNum);
+			switch(fileType){
+				case 1:
+					if(!readTabCountsForSample(sNum, 2)){
+						cerr << "Failed to read kmers for " << labels[sNum] << " from tab file " << inFileNames[sNum] << endl;
+					}
+					break;
+				case 2:
+					if(!readFastaCountsForSample(sNum, 2)){
+						cerr << "Failed to read kmers for " << labels[sNum] << " from fasta file" << inFileNames[sNum] << endl;
+					}
+					break;
+				default:
+					cerr << "Failed to read kmers for " << labels[sNum] << " from file " << inFileNames[sNum] << endl;
+			}
 		}
 	}
 
@@ -141,7 +162,7 @@ int KmerCountMerger::testKmerFileForSample(const int sNum){
 
 /*** Read the input file for a specific sample - tab format 
 **/
-bool KmerCountMerger::readTabCountsForSample(const int sNum){
+bool KmerCountMerger::readTabCountsForSample(const int sNum, const int pass){
 	ifstream fileifs;
 	bool gzipFile = false;
 	string filename = inFileNames[sNum];
@@ -188,11 +209,19 @@ bool KmerCountMerger::readTabCountsForSample(const int sNum){
 				stringstream valuess(lineParts[1]);
 				valuess >> kmerCount;
 
-				totKmers++;
-				if(kmerCounts.count(kmerSeq) == 0){
-					kmerCounts[kmerSeq] = vector< unsigned int >(numSamples, 0);
+				if( (twoPass && pass == 1 && kmerCount >= minCount) || !twoPass ){
+					totKmers++;
+					if(kmerCounts.count(kmerSeq) == 0){
+						kmerCounts[kmerSeq] = vector< unsigned int >(numSamples, 0);
+					}
+					kmerCounts[kmerSeq][sNum] = kmerCount;
+				}else if(twoPass && pass == 2 && kmerCount < minCount){
+					// Second pass, add sample count if found with minCount in another sample
+					if(kmerCounts.count(kmerSeq) == 1){
+						totKmers++;
+						kmerCounts[kmerSeq][sNum] = kmerCount;
+					}
 				}
-				kmerCounts[kmerSeq][sNum] = kmerCount;
 			}
 		}
 		fileifs.close();
@@ -210,73 +239,30 @@ bool KmerCountMerger::readTabCountsForSample(const int sNum){
 
 /*** Read the input file for a specific sample - FASTA format 
 **/
-bool KmerCountMerger::readFastaCountsForSample(const int sNum){
-	ifstream fileifs;
-	bool gzipFile = false;
-	string filename = inFileNames[sNum];
-	if(filename.find("gz", filename.length()-3) != string::npos || 
-			filename.find("GZ", filename.length()-3) != string::npos){
-		gzipFile = true;
-	}
-	if(gzipFile){
-		fileifs.open(filename.c_str(), ios_base::in | ios_base::binary);
-	}else{
-		fileifs.open(filename.c_str(), ios_base::in );
-	}
-	if (!fileifs.is_open()){
-		cerr << "Unable to open file " << filename << "!\n";
-		return false;
-	}else if (!fileifs.good()){
-		cerr << "File " << filename << " is empty!\n";
-		fileifs.close();
-		return false;
-	}
+bool KmerCountMerger::readFastaCountsForSample(const int sNum, const int pass){
 	try {
-		filtering_istream infile;
-		if(gzipFile){
-			infile.push(gzip_decompressor());
-		}
-		infile.push(fileifs);
-		cout << "Parsing kmer counts from " << filename << endl;
-
-		string kmerSeq = "";
-		unsigned int kmerCount = 0;
-		unsigned int totKmers = 0;
-
-		string line;
-		while(getline(infile, line)){
-			if(line.length() > 0){
-				if(line[0] == '>' && line.length() > 1){
-					if(kmerSeq.length() > 0){
-						// Add previous kmer seq and count to tally
+		SeqReader inFile(inFileNames[sNum]);
+		while(inFile.nextSeq()){
+			stringstream valuess(inFile.getSeqID());
+			valuess >> kmerCount;
+			if(inFile.getSeqLen() > 0){
+				totKmers++;
+				string kmerSeq = inFile.getSeq();
+				if( (twoPass && pass == 1 && kmerCount >= minCount) || !twoPass ){
+					totKmers++;
+					if(kmerCounts.count(kmerSeq) == 0){
+						kmerCounts[kmerSeq] = vector< unsigned int >(numSamples, 0);
+					}
+					kmerCounts[kmerSeq][sNum] = kmerCount;
+				}else if(twoPass && pass == 2 && kmerCount < minCount){
+					// Second pass, add sample count if found with minCount in another sample
+					if(kmerCounts.count(kmerSeq) == 1){
 						totKmers++;
-						if(kmerCounts.count(kmerSeq) == 0){
-							kmerCounts[kmerSeq] = vector< unsigned int >(numSamples, 0);
-						}
 						kmerCounts[kmerSeq][sNum] = kmerCount;
 					}
-					kmerSeq = "";
-
-					// Fetch kmer count from fasta seq ID
-					string valuestr = line.substr(1);
-					stringstream valuess(valuestr);
-					valuess >> kmerCount;
-
-				}else{
-					kmerSeq = kmerSeq.append(line); 
 				}
 			}
 		}
-		if(kmerSeq.length() > 0){
-			// Add previous kmer seq and count to tally
-			totKmers++;
-			if(kmerCounts.count(kmerSeq) == 0){
-				kmerCounts[kmerSeq] = vector< unsigned int >(numSamples, 0);
-			}
-			kmerCounts[kmerSeq][sNum] = kmerCount;
-		}
-		fileifs.close();
-
 		cout << "Loaded " << totKmers << " kmer seqs and counts from " << filename << endl;
 	}
 	catch(const gzip_error& e) {
