@@ -34,7 +34,7 @@ class KmerCountMerger {
 	KmerCountMap kmerCounts; //!< Read counts per kmer seq per sample
 	
 		/*** Actual constructor code, called by constructor forms **/
-	void prepareKmerCountMerger(const vector<string>& aLabelsList, const vector<string>& aFileNamesList, const string& aOutTabFileName, const int& aMinCount);
+	void prepareKmerCountMerger(const vector<string>& aLabelsList, const vector<string>& aFileNamesList, const string& aOutTabFileName, const int& aMinCount, const bool& aTwoPassSet);
 		/*** Peek at format of input file for a specific sample (0=error,1=tab,2=fasta) **/
 	int testKmerFileForSample(const int sNum);
 		/*** Read the input file for a specific sample - tab format **/
@@ -47,7 +47,7 @@ class KmerCountMerger {
   public:
 		/** Initialise with no defaults **/
 	KmerCountMerger(const vector<string>& aLabelsList, const vector<string>& aFileNamesList, const string& aOutTabFileName);
-	KmerCountMerger(const vector<string>& aLabelsList, const vector<string>& aFileNamesList, const string& aOutTabFileName, const int& aMinCount);
+	KmerCountMerger(const vector<string>& aLabelsList, const vector<string>& aFileNamesList, const string& aOutTabFileName, const int& aMinCount, const bool& aTwoPassSet);
 	~KmerCountMerger();
 	
 		/** Launch the full kmer count merging process **/

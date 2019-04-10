@@ -240,9 +240,12 @@ bool KmerCountMerger::readTabCountsForSample(const int sNum, const int pass){
 /*** Read the input file for a specific sample - FASTA format 
 **/
 bool KmerCountMerger::readFastaCountsForSample(const int sNum, const int pass){
+	string filename = inFileNames[sNum];
 	try {
-		SeqReader inFile(inFileNames[sNum]);
+		SeqReader inFile(filename);
+		unsigned int totKmers = 0;
 		while(inFile.nextSeq()){
+			unsigned int kmerCount;
 			stringstream valuess(inFile.getSeqID());
 			valuess >> kmerCount;
 			if(inFile.getSeqLen() > 0){
@@ -268,7 +271,6 @@ bool KmerCountMerger::readFastaCountsForSample(const int sNum, const int pass){
 	catch(const gzip_error& e) {
 		cerr << "Error while reading file " << filename << endl;
 		cerr << e.what() << endl;
-		fileifs.close();
 		return false;
 	}
 	return true;
