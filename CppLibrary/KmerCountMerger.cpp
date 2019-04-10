@@ -65,7 +65,9 @@ bool KmerCountMerger::MergeKmerCounts(){
 	if(!prepRan){
 		return false;
 	}
-	
+	if(twoPass){
+		cout << "First pass..." << endl;
+	}
 	for(int sNum=0; sNum < numSamples; sNum++){
 		int fileType = testKmerFileForSample(sNum);
 		switch(fileType){
@@ -84,6 +86,7 @@ bool KmerCountMerger::MergeKmerCounts(){
 		}
 	}
 	if(twoPass){
+		cout << "Second pass..." << endl;
 		for(int sNum=0; sNum < numSamples; sNum++){
 			int fileType = testKmerFileForSample(sNum);
 			switch(fileType){
@@ -244,6 +247,7 @@ bool KmerCountMerger::readFastaCountsForSample(const int sNum, const int pass){
 	try {
 		SeqReader inFile(filename);
 		unsigned int totKmers = 0;
+		cout << "Parsing kmer counts from " << filename << endl;
 		while(inFile.nextSeq()){
 			unsigned int kmerCount;
 			stringstream valuess(inFile.getSeqID());
