@@ -36,4 +36,4 @@ g++ -o ../tallySNPs2 tallySNPs2.cpp SNPTallyer2.cpp SeqReader.cpp AlignedRead.cp
 g++ -o ../reverseComplement reverseComplement.cpp SeqReader.cpp -lboost_iostreams -lz
 g++ -o ../splitSeqsIntoXFiles splitSeqsIntoXFiles.cpp SeqReader.cpp -lboost_iostreams -lz
 g++ -o ../tallyGeneCoverageSamGZ tallyGeneCoverageSamGZ.cpp GeneCoverageTallyerSamGZ.cpp -fopenmp -lboost_iostreams -lz
-g++ -o ../mergeKmerCounts mergeKmerCounts.cpp KmerCountMerger.cpp -lboost_iostreams -lz
+g++ -o ../mergeKmerCounts mergeKmerCounts.cpp KmerCountMerger.cpp SeqReader.cpp -lboost_iostreams -lz

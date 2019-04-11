@@ -15,7 +15,7 @@ using namespace std;
 /* andrew.spriggs@csiro.au */
 /* https://github.com/spriggsy83 */
 
-bool getInputs(int argc, char* argv[], string& inSamplesFileName, string& outTabFilename, int& minCount);
+bool getInputs(int argc, char* argv[], string& inSamplesFileName, string& outTabFilename, int& minCount, bool& twoPass);
 bool getSamples(const string& inSamplesFileName, vector<string>& labels, vector<string>& inFileNames);
 void printHelp();
 
@@ -26,8 +26,9 @@ int main(int argc,char *argv[]){
 	string inSamplesFileName = "";
 	string outTabFilename = "";
 	int minCount = 20;
+	bool twoPass = false;
 	
-	if(!getInputs(argc, argv, inSamplesFileName, outTabFilename, minCount)){
+	if(!getInputs(argc, argv, inSamplesFileName, outTabFilename, minCount, twoPass)){
 		//cerr << "Process aborted.\n";
 		return 1;
 	}
@@ -37,7 +38,7 @@ int main(int argc,char *argv[]){
 		return 1;
 	}
 	
-	KmerCountMerger theKmerCountMerger(labels, inFileNames, outTabFilename, minCount);
+	KmerCountMerger theKmerCountMerger(labels, inFileNames, outTabFilename, minCount, twoPass);
 	
 	if(theKmerCountMerger.MergeKmerCounts()){
 		return 0;
@@ -84,10 +85,11 @@ bool getSamples(const string& inSamplesFileName, vector<string>& labels, vector<
 	return true;
 }
 
-bool getInputs(int argc, char* argv[], string& inSamplesFileName, string& outTabFilename, int& minCount){
+bool getInputs(int argc, char* argv[], string& inSamplesFileName, string& outTabFilename, int& minCount, bool& twoPass){
+	twoPass = false;
 	extern char *optarg;
 	int opt;
-	while ((opt = getopt(argc,argv,"i:o:m:h")) != EOF){
+	while ((opt = getopt(argc,argv,"i:o:m:2h")) != EOF){
 		switch(opt){
 			case 'i':
 				inSamplesFileName = optarg;
@@ -97,6 +99,9 @@ bool getInputs(int argc, char* argv[], string& inSamplesFileName, string& outTab
 				break;
 			case 'm':
 				minCount = atoi( optarg );
+				break;
+			case '2':
+				twoPass = true;
 				break;
 			case 'h':
 			case '?':
@@ -119,6 +124,7 @@ void printHelp(){
 	cerr << "\t-i samplesFile\t\tFilename of samples list\n";
 	cerr << "\t-o outTabFile\t\tFilename for kmer counts table output\n";
 	cerr << "\t-m minCount\t\tMinimum count of a kmer from any sample required for kmer to be printed (default=20)\n";
+	cerr << "\t-2\t\tEnable two-pass mode, which may be faster with higher minCounts\n";
 	cerr << "\n\n";
 	cerr << "samplesFile should be a tab-separated file with each line representing a sample in the form:\n";
 	cerr << "sample-name\tkmer-count-file\n\n";
