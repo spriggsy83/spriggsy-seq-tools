@@ -14,3 +14,4 @@ splitSeqsIntoXFiles
 tallyGeneCoverageSamGZ
 tallySNPs2
 mergeKmerCounts
+buildKmerChaos

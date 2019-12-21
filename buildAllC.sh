@@ -37,3 +37,4 @@ g++ -o ../reverseComplement reverseComplement.cpp SeqReader.cpp -lboost_iostream
 g++ -o ../splitSeqsIntoXFiles splitSeqsIntoXFiles.cpp SeqReader.cpp -lboost_iostreams -lz
 g++ -o ../tallyGeneCoverageSamGZ tallyGeneCoverageSamGZ.cpp GeneCoverageTallyerSamGZ.cpp -fopenmp -lboost_iostreams -lz
 g++ -o ../mergeKmerCounts mergeKmerCounts.cpp KmerCountMerger.cpp SeqReader.cpp -lboost_iostreams -lz
+g++ -std=c++0x -o ../buildKmerChaos buildKmerChaos.cpp KmerChaosGen.cpp SeqReader.cpp -fopenmp -lboost_iostreams -lz
